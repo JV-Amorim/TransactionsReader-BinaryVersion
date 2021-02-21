@@ -1,6 +1,6 @@
-# Transactions Reader
+# Transactions Reader - Binary Version
 
-Leitor e manipulador de arquivos .csv de transações (C++). Exercício da disciplina de Organização e Sistemas de Arquivos.
+Leitor e manipulador de arquivos binários de transações (C++). Exercício da disciplina de Organização e Sistemas de Arquivos.
 
 ## Informações sobre a aplicação:
 
