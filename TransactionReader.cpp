@@ -7,13 +7,9 @@ using namespace std;
 
 namespace TransactionReader
 {
-	string fileHeader;
-
-	vector<Transaction> readTransactionsFromFile(string t_fileName)
+	vector<Transaction> readTransactionsFromTextFile(string t_fileName)
 	{
 		ifstream openedFile(t_fileName);
-		string output;
-		vector<Transaction> transactions;
 
 		if (openedFile.fail())
 		{
@@ -21,32 +17,105 @@ namespace TransactionReader
 			return {};
 		}
 
-		getline(openedFile, fileHeader);
+		vector<Transaction> transactions;
+		string output;
+
+		getline(openedFile, output);
 
 		while (getline(openedFile, output))
 		{
-			char* contentCopy = _strdup(output.c_str());
-			char* context = NULL;
 			Transaction newTransaction;
-
-			string dateHourString = strtok_s(contentCopy, ";", &context);
-			newTransaction.dateHour = DateHour::parseToDateHour(dateHourString);
-
-			newTransaction.product = strtok_s(NULL, ";", &context);
-			newTransaction.price = atof(strtok_s(NULL, ";", &context));
-			newTransaction.paymentType = strtok_s(NULL, ";", &context);
-			newTransaction.personName = strtok_s(NULL, ";", &context);
-			newTransaction.city = strtok_s(NULL, ";", &context);
-			newTransaction.state = strtok_s(NULL, ";", &context);
-			newTransaction.country = strtok_s(NULL, "\0", &context);
-
+			newTransaction.parseToTransaction(output);
 			transactions.push_back(newTransaction);
-
-			free(contentCopy);
 		}
 
 		openedFile.close();
+
 		return transactions;
+	}
+
+	vector<Transaction> readTransactionsFromBinaryFile(string t_fileName)
+	{
+		fstream openedFile("Data/" + t_fileName + ".tbin", ios::in | ios::binary);
+
+		if (openedFile.fail())
+		{
+			openedFile.close();
+			return {};
+		}
+
+		vector<Transaction> transactions;
+		size_t vectorSize;
+
+		openedFile.read(reinterpret_cast<char*>(&vectorSize), sizeof(vectorSize));
+
+		for (int i = 0; i < vectorSize; i++)
+		{
+			Transaction newTransaction;
+			bool isSuccessful = newTransaction.readTransactionFromBinaryFile(openedFile);
+
+			if (!isSuccessful)
+			{
+				return {};
+			}
+
+			transactions.push_back(newTransaction);
+		}
+
+		openedFile.close();
+
+		return transactions;
+	}
+
+	bool saveTransactionsToBinaryFile(vector<Transaction> t_transactions, string t_fileName)
+	{
+		fstream createdFile("Data/" + t_fileName + ".tbin", ios::out | ios::binary);
+
+		if (createdFile.fail())
+		{
+			createdFile.close();
+			return false;
+		}
+
+		size_t vectorSize = t_transactions.size();
+		createdFile.write(reinterpret_cast<char*>(&vectorSize), sizeof(vectorSize));
+
+		for (int i = 0; i < vectorSize; i++)
+		{
+			bool isSuccessful = t_transactions[i].writeTransactionToBinaryFile(createdFile);
+
+			if (!isSuccessful)
+			{
+				return false;
+			}
+		}
+
+		createdFile.close();
+
+		return true;
+	}
+
+	void convertTransactionsTextFileToBinaryFile(string t_fileName)
+	{
+		vector<Transaction> transactions = readTransactionsFromTextFile("Data/" + t_fileName);
+
+		if (transactions.empty())
+		{
+			cout << endl << "Erro: nao foi possivel abrir o arquivo especificado ou ele nao possui transacoes. A aplicacao sera encerrada." << endl;
+			return;
+		}
+
+		string binaryFileNameWithoutExtension = t_fileName.substr(0, t_fileName.find_last_of("."));
+
+		bool isSuccessful = saveTransactionsToBinaryFile(transactions, binaryFileNameWithoutExtension);
+
+		if (!isSuccessful)
+		{
+			cout << "Erro: nao foi possivel salvar o arquivo binario. A aplicacao sera encerrada." << endl;
+			return;
+		}
+
+		cout << endl << "Arquivo binario salvo com sucesso!" << endl;
 	}
 
 	vector<Transaction> filterTransactions(vector<Transaction> t_transactions, string t_searchDate)
@@ -74,26 +143,5 @@ namespace TransactionReader
 		{
 			cout << i + 1 << ". " << t_transactions[i].toString() << endl;
 		}
-	}
-
-	bool saveTransactionsToFile(vector<Transaction> t_transactions, string t_fileName)
-	{
-		ofstream createdFile(t_fileName);
-
-		if (createdFile.fail())
-		{
-			createdFile.close();
-			return false;
-		}
-
-		createdFile << fileHeader << endl;
-
-		for (int i = 0; i < t_transactions.size(); i++)
-		{
-			createdFile << t_transactions[i].toString() << endl;
-		}
-
-		createdFile.close();
-		return true;
 	}
 }

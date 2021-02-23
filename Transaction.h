@@ -14,6 +14,9 @@ namespace TransactionReader
 		std::string product{ "" }, paymentType{ "" }, personName{ "" }, city{ "" }, state{ "" }, country{ "" };
 
 		std::string toString();
+		void parseToTransaction(std::string t_content);
+		bool readTransactionFromBinaryFile(std::fstream& t_openedFile);
+		bool writeTransactionToBinaryFile(std::fstream& t_createdFile);
 	};
 }
 

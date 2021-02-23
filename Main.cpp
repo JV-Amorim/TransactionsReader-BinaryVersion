@@ -16,7 +16,10 @@ int main()
 void showInitialView()
 {
     cout << "LEITOR DE ARQUIVOS DE TRANSACOES" << endl;
-    cout << endl << "Digite uma opcao:" << endl << "[1] Abrir um arquivo de transacoes (contido na pasta \"Data\");" << endl << "[0] Sair;" << endl;
+    cout << endl << "Digite uma opcao:";
+    cout << endl << "[1] Converter arquivo de transacoes em formato texto (contido na pasta \"Data\") para formato binario;";
+    cout << endl << "[2] Abrir um arquivo binario de transacoes (contido na pasta \"Data\");";
+    cout << endl << "[0] Sair;" << endl;
 
     int choice = -1;
     cin >> choice;
@@ -27,6 +30,10 @@ void showInitialView()
     }
     else if (choice == 1)
     {
+        showFileConversionView();
+    }
+    else if (choice == 2)
+    {
         showFileSelectionView();
     }
     else
@@ -36,14 +43,24 @@ void showInitialView()
     }
 }
 
-void showFileSelectionView()
+void showFileConversionView()
 {
-    cout << endl << "Digite o nome completo do arquivo (com a extensao):" << endl;
+    cout << endl << "Digite o nome completo do arquivo em formato texto (com a extensao):" << endl;
 
     string fileName = "";
     cin >> fileName;
 
-    vector<Transaction> transactions = readTransactionsFromFile("Data/" + fileName);
+    convertTransactionsTextFileToBinaryFile(fileName);
+}
+
+void showFileSelectionView()
+{
+    cout << endl << "Digite o nome completo do arquivo (sem a extensao):" << endl;
+
+    string fileName = "";
+    cin >> fileName;
+
+    vector<Transaction> transactions = readTransactionsFromBinaryFile(fileName);
 
     if (transactions.empty())
     {
@@ -131,12 +148,12 @@ void showSaveFileView(vector<Transaction> t_transactions)
     }
 
     cout << endl << "Nota: o arquivo sera salvo na pasta \"Data\" e sobreescrevera qualquer arquivo com o mesmo nome ja existente." << endl;
-    cout << "Digite um nome para o arquivo (com a extensao):" << endl;
+    cout << "Digite um nome para o arquivo (sem a extensao):" << endl;
 
     string fileName = "";
     cin >> fileName;
 
-    bool isSuccessful = saveTransactionsToFile(t_transactions, "Data/" + fileName);
+    bool isSuccessful = saveTransactionsToBinaryFile(t_transactions, fileName);
 
     if (isSuccessful)
     {

@@ -7,10 +7,12 @@
 
 namespace TransactionReader
 {
-	std::vector<Transaction> readTransactionsFromFile(std::string t_fileName);
+	std::vector<Transaction> readTransactionsFromTextFile(std::string t_fileName);
+	std::vector<Transaction> readTransactionsFromBinaryFile(std::string t_fileName);
+	bool saveTransactionsToBinaryFile(std::vector<Transaction> t_transactions, std::string t_fileName);
+	void convertTransactionsTextFileToBinaryFile(std::string t_fileName);
 	std::vector<Transaction> filterTransactions(std::vector<Transaction> t_transactions, std::string t_searchDate);
 	void printTransactions(std::vector<Transaction> t_transactions);
-	bool saveTransactionsToFile(std::vector<Transaction> t_transactions, std::string t_fileName);
 }
 
 #endif

@@ -6,6 +6,7 @@
 
 int main();
 void showInitialView();
+void showFileConversionView();
 void showFileSelectionView();
 void showSearchView(std::vector<TransactionReader::Transaction> t_transactions);
 void showSaveFileView(std::vector<TransactionReader::Transaction> t_transactions);
